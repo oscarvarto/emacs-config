@@ -1,0 +1,17 @@
+# Managed packages and build artifacts
+elpaca/
+eln-cache/
+tree-sitter/
+
+# Ephemeral editor state
+auto-save-list/
+recentf
+history
+.tramp_history
+
+# Credentials and other sensitive data
+authinfo
+authinfo.gpg
+authinfo.*
+netrc
+secrets/
