@@ -55,6 +55,11 @@
 ;; Expands to: (elpaca evil (use-package evil :demand t))
 ;; (use-package evil :ensure t :demand t)
 
+;; Install magit dependencies early to avoid loading conflicts
+;; See: https://github.com/progfolio/elpaca/issues/425
+(elpaca compat)
+(elpaca transient)
+
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.
 ;;Useful for configuring built-in emacs features.

@@ -78,14 +78,13 @@
   :demand t
   :init (doom-modeline-mode 1))
 
+;; Magit configuration (dependencies are loaded in my-elpaca.el)
 (use-package magit
   :ensure t
   :demand t
-  :config
-  ;; optional: this is the evil state that evil-collection-magit will use
-  (setq evil-collection-magit-state 'normal)
-  ;; optional: disable additional bindings for yanking text
-  (setq evil-collection-magit-use-y-for-yank nil)
-  (evil-collection-init))
+  :bind (("C-x g" . magit-status)
+         ("C-x M-g" . magit-dispatch))
+  :init
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (provide 'my-defaults)

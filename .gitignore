@@ -8,6 +8,8 @@ auto-save-list/
 recentf
 history
 .tramp_history
+projectile-bookmarks.eld
+transient/
 
 # Credentials and other sensitive data
 authinfo

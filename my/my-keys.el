@@ -17,6 +17,9 @@
            :repo "emacs-evil/evil-collection"
            :depth 1)
   :config
+  ;; Configure Magit integration before enabling evil-collection
+  (setq evil-collection-magit-state 'normal
+        evil-collection-magit-use-y-for-yank nil)
   (evil-collection-init))
 
 ;; which-key for showing keybinding hints
