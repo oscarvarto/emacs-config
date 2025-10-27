@@ -310,6 +310,44 @@
 
      ;; End of my/load-common-appearance-config function
 
+  ;; Helper function to apply ligature configuration for current font
+  (defun my/apply-ligature-config ()
+    "Apply ligature configuration for the current font."
+    (cond
+     ((eq my/current-font-config 'monolisa)
+      ;; MonoLisa ligatures
+      (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+      (ligature-set-ligatures '(prog-mode text-mode org-mode markdown-mode) nil)
+      (ligature-set-ligatures '(prog-mode text-mode org-mode markdown-mode)
+        '("<!---" "--->" "|||>" "<!--" "<|||" "<==>" "-->" "->>" "-<<" "..=" "!=="
+          "#_(" "/==" "||>" "||=" "|->" "===" "==>" "=>>" "=<<" "=/=" ">->" ">=>"
+          ">>-" ">>=" "<--" "<->" "-<" "<||" "<|>" "<=" "<==" "<=>" "<=<" "<<-"
+          "<<=" "<~>" "<~~" "~~>" ">&-" "<&-" "&>>" "&>" "->" "-<" "-~" ".=" "!="
+          "#_" "/=" "|=" "|>" "==" "=>" ">-" ">=" "<-" "<|" "<~" "~-" "~@" "~="
+          "~>" "~~"
+          "---" "'''" "\"\"\"" "..." "..<" "{|" "[|" ".?" "::" ":::" "::=" ":="
+          ":>" ":<" ";;" "!!" "!!." "!!!" "?." "?:" "??" "?=" "*>"
+          "*/" "--" "#:" "#!" "#?" "##" "###" "####" "#=" "/*" "/>" "//" "/**"
+          "///" "$(" ">&" "<&" "&&" "|}" "|]" "$>" ".." "++" "+++" "+>" "=:="
+          "=!=" ">:" ">>" ">>>" "<:" "<*" "<*>" "<$" "<$>" "<+" "<+>" "<>" "<<"
+          "<<<" "</" "</>" "^=" "%%"))
+      (unless (bound-and-true-p global-ligature-mode)
+        (global-ligature-mode t)))
+     ((eq my/current-font-config 'jetbrains)
+      ;; JetBrains Mono ligatures
+      (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+      (ligature-set-ligatures '(prog-mode text-mode org-mode markdown-mode) nil)
+      (ligature-set-ligatures '(prog-mode text-mode org-mode markdown-mode)
+        '("-->" "->" "=>" "==>" "=>>" "=<<" "=/=" ">=" "<=" "!="
+          "===" "==" "=<" "=>" "<-" "->" "<->" "<==" "==>" "<==>"
+          "<=>" "=/" "/=" "!==" "!=" "<!>" "<~>" "~~>" "~>" "~="
+          "<|" "|>" "|>>" "<||>" "||" "||>"
+          "++" "--" "**" "***" "//" "///" "/*" "*/" "#?"
+          "::" ":::" "::=" ":=" ":.>" ":>" ".="
+          ".." "..." "?:" "??" ".?" "?."))
+      (unless (bound-and-true-p global-ligature-mode)
+        (global-ligature-mode t)))))
+
   ;; Helper function to apply fonts to a specific frame
   (defun my/apply-fonts-to-frame (&optional frame)
     "Apply current font configuration to FRAME (or selected frame if nil)."
@@ -326,7 +364,18 @@
                            (t '(:family "MonoLisaVariable Nerd Font" :height 160 :weight regular)))))
           (apply 'set-face-attribute 'default frame font-spec)
           (apply 'set-face-attribute 'fixed-pitch frame font-spec)
-          (apply 'set-face-attribute 'variable-pitch frame font-spec)))))
+          (apply 'set-face-attribute 'variable-pitch frame font-spec)
+          ;; Apply ligature configuration for MonoLisa and JetBrains
+          (when (memq font-config '(monolisa jetbrains))
+            (my/apply-ligature-config)
+            ;; Enable ligature-mode in all existing buffers
+            (dolist (buffer (buffer-list))
+              (with-current-buffer buffer
+                (when (and (not (minibufferp))
+                           (or (derived-mode-p 'prog-mode)
+                               (derived-mode-p 'text-mode)
+                               (derived-mode-p 'org-mode)))
+                  (ligature-mode 1)))))))))
 
   ;; Initialize the configuration
   (defun my/initialize-theme-aware-appearance ()
