@@ -87,4 +87,9 @@
   :init
   (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(use-package eglot-booster
+	:ensure (:host github :repo "jdtsmith/eglot-booster" :depth 1)
+	:after eglot
+	:config (eglot-booster-mode))
+
 (provide 'my-defaults)

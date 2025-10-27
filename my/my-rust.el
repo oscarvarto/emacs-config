@@ -8,6 +8,8 @@
 (require 'cl-lib)
 (require 'subr-x)  ;; string-trim, string-empty-p
 
+(setq rustic-lsp-setup-p nil)
+
 ;; Rustic customization (these don't affect mode setup)
 (custom-set-faces
  '(rustic-compilation-column ((t (:inherit compilation-column-number))))
@@ -102,6 +104,84 @@ and returning non-nil for the preferred match."
      (message "Warning: Could not detect rust toolchain, using fallback: %s" err)
      (or (getenv "RUST_TOOLCHAIN") "nightly"))))
 
+;; -----------------------------------------------------------------------------
+;; Cargo workspace helpers (delegating to rustic)
+
+(defvar my/rust--workspace-cache (make-hash-table :test 'equal :size 31)
+  "Cache Cargo workspace lookups keyed by canonical directories.")
+
+(defun my/rust--toolchain-path-p (path)
+  "Return non-nil when PATH lives under rustup/cargo toolchain directories."
+  (when path
+    (let ((expanded (file-name-as-directory (file-truename path))))
+      (or (string-match-p (rx "/" ".rustup" "/toolchains/") expanded)
+          (string-match-p (rx "/" ".cargo" "/registry/") expanded)))))
+
+(defun my/rust-find-workspace-root (&optional dir)
+  "Return Cargo workspace root for DIR (defaults to `default-directory')."
+  (let* ((target (or dir default-directory))
+         (path (and target
+                    (if (file-directory-p target)
+                        target
+                      (file-name-directory target))))
+         (canon (and path (file-name-as-directory (file-truename path)))))
+    (when (and canon (not (my/rust--toolchain-path-p canon)))
+      (or (gethash canon my/rust--workspace-cache)
+          (when (fboundp 'rustic-buffer-workspace)
+            (let ((default-directory canon))
+              (when-let ((raw (ignore-errors (rustic-buffer-workspace))))
+                (let* ((root (file-name-as-directory (file-truename raw))))
+                  (unless (my/rust--toolchain-path-p root)
+                    (puthash canon root my/rust--workspace-cache))
+                  root))))))))
+
+(defun my/rust-show-workspace-root ()
+  "Display the detected Cargo workspace root for the current buffer."
+  (interactive)
+  (if-let ((root (my/rust-find-workspace-root)))
+      (message "Rust workspace root: %s" root)
+    (message "No Cargo workspace root detected.")))
+
+(defun my/projectile-show-root ()
+  "Display the Projectile project root for the current buffer."
+  (interactive)
+  (if (not (require 'projectile nil 'noerror))
+      (message "Projectile is not available.")
+    (if-let ((root (ignore-errors (projectile-project-root))))
+        (message "Projectile project root: %s" root)
+      (message "Projectile could not determine a project root here."))))
+
+;; Projectile integration
+(with-eval-after-load 'projectile
+  (defun my/projectile-rust-workspace-root (dir)
+    "Return Cargo workspace root for DIR or nil."
+    (when (fboundp 'rustic-buffer-workspace)
+      (my/rust-find-workspace-root dir)))
+
+  (setq projectile-project-root-functions
+        (cons #'my/projectile-rust-workspace-root
+              (cl-remove #'my/projectile-rust-workspace-root
+                         projectile-project-root-functions))))
+
+;; -----------------------------------------------------------------------------
+;; Eglot integration helpers
+
+(defun my/rustic-eglot-maybe-ensure ()
+  "Start Eglot for Rust buffers when appropriate."
+  (let* ((base (or (and buffer-file-name (file-name-directory buffer-file-name))
+                   default-directory))
+         (canonical (and base (file-name-as-directory (file-truename base)))))
+    (cond
+     ((null canonical) nil)
+     ((my/rust--toolchain-path-p canonical)
+      (message "Skipping Eglot for toolchain-managed file: %s" canonical))
+     (t
+      (let* ((workspace (or (my/rust-find-workspace-root canonical)
+                            canonical))
+             (default-directory workspace))
+        (my/setup-rust-analyzer)
+        (eglot-ensure))))))
+
 ;; Set rust-analyzer command based on environment
 (defun my/setup-rust-analyzer ()
   "Configure rust-analyzer command based on the active environment.
@@ -185,6 +265,7 @@ Sets the command globally for rustic-analyzer-command."
   ;; rust-analyzer command will be set by my/setup-rust-analyzer
   (rustic-format-on-save nil)
   (rustic-cargo-use-last-stored-arguments t)
+  (rustic-compile-directory-method #'rustic-buffer-workspace)
   ;; Enable detached file support if needed (eglot-only feature)
   (rustic-enable-detached-file-support nil)
   :config
@@ -200,18 +281,12 @@ Sets the command globally for rustic-analyzer-command."
 
   (add-hook 'rustic-mode-hook 'rustic-mode-auto-save-hook)
 
-  ;; Setup rust-analyzer by advising rustic-setup-lsp
-  ;; This ensures we set rustic-analyzer-command RIGHT before eglot starts
-  (defun my/rustic-setup-analyzer-advice (&rest _)
-    "Advice to set rustic-analyzer-command before eglot setup."
-    (my/setup-rust-analyzer))
-
-  (advice-add 'rustic-setup-lsp :before #'my/rustic-setup-analyzer-advice))
+  )
 
 ;; Eglot configuration for Rust
 (use-package emacs
   :ensure nil
-  :hook (rustic-mode . eglot-ensure)
+  :hook (rustic-mode . my/rustic-eglot-maybe-ensure)
   :config
   ;; Disable flymake if you prefer another linter (e.g., flycheck)
   ;; (add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
@@ -233,6 +308,8 @@ Sets the command globally for rustic-analyzer-command."
 (defun my/rustic--direnv-updated (&rest _)
   "Refresh rust-analyzer command after direnv updates."
   (my/setup-rust-analyzer)
+  (when my/rust--workspace-cache
+    (clrhash my/rust--workspace-cache))
   ;; Restart eglot if it's running in the current buffer
   (when (and (derived-mode-p 'rustic-mode)
              (eglot-managed-p))
