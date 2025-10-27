@@ -14,8 +14,6 @@
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-footer-messages '("Never Give Up"))
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
 
 (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))

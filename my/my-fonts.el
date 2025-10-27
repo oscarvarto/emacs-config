@@ -141,7 +141,11 @@
                           :height 180
                           :weight 'regular))
     (enable-pragmatapro-lig-hooks)
-    (turn-on-pragmatapro-lig-mode))
+    ;; Only enable pragmatapro-lig-mode if not in dashboard or minibuffer
+    (unless (or (minibufferp)
+                (and (boundp 'dashboard-buffer-name)
+                     (string= (buffer-name) dashboard-buffer-name)))
+      (turn-on-pragmatapro-lig-mode)))
 
   ;; Function to load JetBrains Mono font configuration
   (defun my/load-jetbrains-font-config ()
@@ -253,9 +257,20 @@
                             ((eq my/current-font-config 'pragmatapro) 'monolisa)
                             ((eq my/current-font-config 'monolisa) 'jetbrains)
                             ((eq my/current-font-config 'jetbrains) 'pragmatapro)
-                            (t 'pragmatapro))))
+                            (t 'pragmatapro)))
+          (in-dashboard (string= (buffer-name) dashboard-buffer-name)))
+      ;; Load the new font configuration
       (my/load-font-config new-font-config)
-      (my/reload-font)
+      ;; Apply fonts to all frames without triggering redraws
+      (dolist (frame (frame-list))
+        (my/apply-fonts-to-frame frame))
+      ;; If we're in dashboard, refresh it once cleanly
+      (when in-dashboard
+        (with-current-buffer dashboard-buffer-name
+          (let ((inhibit-read-only t))
+            (erase-buffer)
+            (dashboard-insert-startupify-lists t)
+            (goto-char (point-min)))))
       (message "Switched to %s font configuration" new-font-config)))
 
   ;; Common configuration that applies to both themes
@@ -295,6 +310,24 @@
 
      ;; End of my/load-common-appearance-config function
 
+  ;; Helper function to apply fonts to a specific frame
+  (defun my/apply-fonts-to-frame (&optional frame)
+    "Apply current font configuration to FRAME (or selected frame if nil)."
+    (when (display-graphic-p frame)
+      (with-selected-frame (or frame (selected-frame))
+        (let* ((font-config my/current-font-config)
+               (font-spec (cond
+                           ((eq font-config 'monolisa)
+                            '(:family "MonoLisaVariable Nerd Font" :height 160 :weight regular))
+                           ((eq font-config 'pragmatapro)
+                            '(:family "PragmataPro Liga" :height 180 :weight regular))
+                           ((eq font-config 'jetbrains)
+                            '(:family "JetBrainsMono Nerd Font" :height 140 :weight regular))
+                           (t '(:family "MonoLisaVariable Nerd Font" :height 160 :weight regular)))))
+          (apply 'set-face-attribute 'default frame font-spec)
+          (apply 'set-face-attribute 'fixed-pitch frame font-spec)
+          (apply 'set-face-attribute 'variable-pitch frame font-spec)))))
+
   ;; Initialize the configuration
   (defun my/initialize-theme-aware-appearance ()
     "Initialize the theme-aware appearance configuration."
@@ -315,6 +348,12 @@
     ;; Load initial font configuration (default to monolisa)
     (my/load-font-config my/current-font-config)
 
+    ;; Apply fonts to current frame
+    (my/apply-fonts-to-frame)
+
+    ;; Add hook for new frames (important for emacsclient)
+    (add-hook 'after-make-frame-functions #'my/apply-fonts-to-frame)
+
     ;; Note: demap-minimap-construct-hook removed as it's Doom-specific
     ;; If you need similar functionality, you'll need to implement it separately
 
@@ -330,7 +369,6 @@
                                        (pragmatapro-lig-mode 'toggle)))))
 
   ;; Auto-initialize after all functions are defined
-  (my/initialize-theme-aware-appearance)
-  (my/load-monolisa-font-config))
+  (my/initialize-theme-aware-appearance))
 
 (provide 'my-fonts)
