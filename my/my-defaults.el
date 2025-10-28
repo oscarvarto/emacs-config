@@ -95,7 +95,8 @@
 (use-package eldoc-box
   :ensure t
   :demand t
-  :hook (eglot-managed-mode . eldoc-box-hover-mode))
+  :hook ((eglot-managed-mode . eldoc-box-hover-mode)
+         (lsp-mode . eldoc-box-hover-mode)))
 
 (use-package dape
   :ensure t
@@ -132,8 +133,7 @@
   (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
 
   ;; Kill compile buffer on build success
-  (add-hook 'dape-compile-hook #'kill-buffer)
-  )
+  (add-hook 'dape-compile-hook #'kill-buffer))
 
 ;; For a more ergonomic Emacs and `dape' experience
 (use-package repeat-help
@@ -146,13 +146,30 @@
   :custom
   (window-sides-vertical t))
 
-;; Perspective mode for workspace management
-(use-package persp-mode
+(use-package mise
   :ensure t
   :demand t
-  :init
-  (setq wg-morph-on nil) ;; switch off animation
-  (setq persp-autokill-buffer-on-remove 'kill-weak)
-  :hook (window-setup . persp-mode))
+  :hook (after-init . global-mise-mode))
+
+(use-package direnv
+  :ensure t
+  :demand t
+  :config
+  (direnv-mode))
+
+(use-package envrc
+  :ensure t
+  :demand t
+  :config
+  (envrc-global-mode))
+
+;; Perspective mode for workspace management
+;; (use-package persp-mode
+;;   :ensure t
+;;   :demand t
+;;   :init
+;;   (setq wg-morph-on nil) ;; switch off animation
+;;   (setq persp-autokill-buffer-on-remove 'kill-weak)
+;;   :hook (window-setup . persp-mode))
 
 (provide 'my-defaults)

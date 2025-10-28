@@ -1,10 +1,5 @@
 ;;; my-rust.el -*- lexical-binding: t; no-byte-compile: t; -*-
 
-(dolist (pkg '(direnv envrc))
-  (eval `(use-package ,pkg
-           :ensure t
-           :demand t)))
-
 (require 'cl-lib)
 (require 'subr-x)  ;; string-trim, string-empty-p
 

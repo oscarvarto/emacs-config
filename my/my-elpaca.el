@@ -60,6 +60,20 @@
 (elpaca compat)
 (elpaca transient)
 
+;; Install lsp-mode packages for Java/Clojure/Nix/Nushell support
+;; (Rust will continue using eglot)
+(elpaca lsp-mode)
+(elpaca lsp-ui)
+(elpaca lsp-treemacs)
+(elpaca lsp-java)
+
+;; Additional language modes for LSP
+(elpaca nix-mode)
+(elpaca nushell-mode)
+
+;; Debugging support
+(elpaca dap-mode)  ; For Java/Clojure debugging via lsp-mode
+
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.
 ;;Useful for configuring built-in emacs features.

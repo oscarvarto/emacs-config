@@ -15,6 +15,9 @@ eglot-java-eclipse-jdt-cache/
 persp-confs/
 share/
 cache/
+.dap-breakpoints
+.lsp-session-v1
+workspace/
 
 # Credentials and other sensitive data
 authinfo

@@ -13,7 +13,11 @@
 ;; (load "my-magit")
 ;; (load "my-tabs")
 (load "my-completion")
+(load "my-lsp")  ; Load LSP configuration before language-specific configs
 (load "my-java")
 (load "my-clojure")
 (load "my-rust")
+(load "my-nix")
+(load "my-nushell")
+(load "my-dap")  ; DAP debugging for Java/Clojure (Rust uses dape)
 (load "my-org")
