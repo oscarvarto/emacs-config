@@ -22,7 +22,7 @@
   (defun my/treemacs-custom-font ()
     "Apply PragmataPro font to treemacs buffer."
     (setq-local buffer-face-mode-face
-                '(:family "PragmataPro" :height 1.0))
+                '(:family "PragmataPro" :height 0.6))
     (buffer-face-mode 1))
 
   (add-hook 'treemacs-mode-hook #'my/treemacs-custom-font)
@@ -30,9 +30,9 @@
   (setq treemacs-collapse-dirs 1)
   (define-key treemacs-mode-map (kbd "C-c C-j") #'treemacs-root-up)
   (define-key treemacs-mode-map (kbd "C-c C-k") #'treemacs-root-down)
-  (setq treemacs--icon-size 18)
+  ;; (setq treemacs--icon-size 18)
   ;; Update icons to the new size
-  (treemacs-resize-icons treemacs--icon-size)
+  ;; (treemacs-resize-icons treemacs--icon-size)
   (treemacs-follow-mode 1)
 
   (defun my/treemacs-toggle-multiple-roots ()

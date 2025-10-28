@@ -2,6 +2,9 @@
 
 (add-to-list 'load-path (expand-file-name "my" user-emacs-directory))
 
+;; Load shell configuration early to ensure proper PATH for subprocesses
+(load "my-shell")
+
 (load "my-elpaca")
 (load "my-theme")
 (load "my-fonts")
