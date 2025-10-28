@@ -9,7 +9,7 @@
 (load "my-keys")
 (load "my-defaults")
 (load "my-dashboard")
-;; (load "my-treemacs")
+(load "my-treemacs")
 ;; (load "my-magit")
 ;; (load "my-tabs")
 (load "my-completion")

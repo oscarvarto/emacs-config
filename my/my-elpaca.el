@@ -62,6 +62,7 @@
 
 ;; Install lsp-mode packages for Java/Clojure/Nix/Nushell support
 ;; (Rust will continue using eglot)
+(elpaca treemacs)
 (elpaca lsp-mode)
 (elpaca lsp-ui)
 (elpaca lsp-treemacs)
