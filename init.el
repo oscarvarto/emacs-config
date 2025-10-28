@@ -13,6 +13,7 @@
 ;; (load "my-magit")
 ;; (load "my-tabs")
 (load "my-completion")
+(load "my-java")
 (load "my-clojure")
 (load "my-rust")
 (load "my-org")

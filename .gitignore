@@ -10,6 +10,10 @@ history
 .tramp_history
 projectile-bookmarks.eld
 transient/
+dape-breakpoints
+eglot-java-eclipse-jdt-cache/
+persp-confs/
+share/
 
 # Credentials and other sensitive data
 authinfo
