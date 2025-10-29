@@ -44,6 +44,24 @@
         (sh-mode . bash-ts-mode)
         (clojure-mode . clojure-ts-mode)))
 
+;; Auto-mode associations for json-ts-mode
+(setq auto-mode-alist
+      (append '(("\\.jsonc\\'" . json-ts-mode)
+                ("\\.jsonl\\'" . json-ts-mode)
+                ("\\.json5\\'" . json-ts-mode)
+                ("\\.babelrc\\'" . json-ts-mode)
+                ("\\.eslintrc\\'" . json-ts-mode)
+                ("\\.prettierrc\\'" . json-ts-mode)
+                ("\\.jshintrc\\'" . json-ts-mode)
+                ("\\.swcrc\\'" . json-ts-mode)
+                ("\\.hintrc\\'" . json-ts-mode)
+                ("\\.babelrc\\.json\\'" . json-ts-mode)
+                ("\\.eslintrc\\.json\\'" . json-ts-mode)
+                ("\\.prettierrc\\.json\\'" . json-ts-mode)
+                ("tsconfig\\.json\\'" . json-ts-mode)
+                ("jsconfig\\.json\\'" . json-ts-mode))
+              auto-mode-alist))
+
 (setq-default buffer-file-coding-system 'utf-8-unix) ; Default file encoding
 
 ;; Enable line numbers only for specific modes
