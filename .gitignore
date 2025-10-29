@@ -18,6 +18,7 @@ cache/
 .dap-breakpoints
 .lsp-session-v1
 workspace/
+*backup*
 
 # Credentials and other sensitive data
 authinfo
