@@ -1,5 +1,9 @@
 ;;; -*- lexical-binding: t; no-byte-compile: t; -*-
 
+;; Set elpaca-core-date before loading elpaca to avoid warning
+;; Use a recent date in YYYYMMDD format
+(defvar elpaca-core-date '(20250101))
+
 ;; elpaca installer
 (defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))

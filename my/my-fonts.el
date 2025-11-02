@@ -306,7 +306,7 @@
       (setq scroll-conservatively 30
             scroll-margin 0)
       :config
-      (ultra-scroll-mode 1)))
+      (ultra-scroll-mode 0)))
 
      ;; End of my/load-common-appearance-config function
 

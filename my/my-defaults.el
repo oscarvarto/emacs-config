@@ -1,6 +1,20 @@
 ;; -*- lexical-binding: t; no-byte-compile: t; -*-
 
 (setq make-backup-files nil) ; stop creating ~ files
+(use-package indent-bars
+  :ensure t
+  :demand t
+  :custom
+  (indent-bars-no-descend-lists t) ; no extra bars in continued func arg lists
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (setq
+    indent-bars-pattern "."
+    indent-bars-width-frac 0.5
+    indent-bars-pad-frac 0.25
+    indent-bars-color-by-depth nil
+    indent-bars-highlight-current-depth '(:face default :blend 0.4))
+  :hook (prog-mode . indent-bars-mode))
 
 (use-package projectile
   :ensure t
@@ -180,14 +194,5 @@
   :demand t
   :config
   (envrc-global-mode))
-
-;; Perspective mode for workspace management
-;; (use-package persp-mode
-;;   :ensure t
-;;   :demand t
-;;   :init
-;;   (setq wg-morph-on nil) ;; switch off animation
-;;   (setq persp-autokill-buffer-on-remove 'kill-weak)
-;;   :hook (window-setup . persp-mode))
 
 (provide 'my-defaults)

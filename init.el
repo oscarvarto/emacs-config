@@ -13,9 +13,8 @@
 (load "my-defaults")
 (load "my-dashboard")
 (load "my-treemacs")
-;; (load "my-magit")
-;; (load "my-tabs")
 (load "my-completion")
+(load "my-vterm")
 (load "my-lsp")  ; Load LSP configuration before language-specific configs
 (load "my-java")
 (load "my-clojure")
