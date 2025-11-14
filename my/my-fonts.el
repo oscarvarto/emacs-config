@@ -5,7 +5,7 @@
   :demand t
   :config
   ;; Variables to track current configuration state
-  (defvar my/current-font-config 'monolisa
+  (defvar my/current-font-config nil
     "Stores the currently loaded font configuration ('pragmatapro, 'monolisa, or 'jetbrains).")
 
   (load "pragmatapro-lig")
@@ -129,15 +129,15 @@
     ;; Font configuration for vanilla Emacs
     (when (display-graphic-p)
       (set-face-attribute 'default nil
-                          :family "PragmataPro Liga"
+                          :family "PragmataPro Mono Liga"
                           :height 180
                           :weight 'regular)
       (set-face-attribute 'fixed-pitch nil
-                          :family "PragmataPro Liga"
+                          :family "PragmataPro Mono Liga"
                           :height 180
                           :weight 'regular)
       (set-face-attribute 'variable-pitch nil
-                          :family "PragmataPro Liga"
+                          :family "PragmataPro Mono Liga"
                           :height 180
                           :weight 'regular))
     (enable-pragmatapro-lig-hooks)
@@ -187,7 +187,7 @@
 
   ;; Initialize catppuccin flavor support
   ;; SINGLE SOURCE OF TRUTH: Default catppuccin flavor configuration
-  (defconst my/default-catppuccin-flavor 'latte
+  (defconst my/default-catppuccin-flavor 'mocha
     "The default catppuccin flavor to use on startup and as fallback.")
 
   (defvar my/catppuccin-current-flavor my/default-catppuccin-flavor
@@ -358,7 +358,7 @@
                            ((eq font-config 'monolisa)
                             '(:family "MonoLisaVariable Nerd Font" :height 160 :weight regular))
                            ((eq font-config 'pragmatapro)
-                            '(:family "PragmataPro Liga" :height 180 :weight regular))
+                            '(:family "PragmataPro Mono Liga" :height 180 :weight regular))
                            ((eq font-config 'jetbrains)
                             '(:family "JetBrainsMono Nerd Font" :height 140 :weight regular))
                            (t '(:family "MonoLisaVariable Nerd Font" :height 160 :weight regular)))))
@@ -394,11 +394,13 @@
       (error
        (message "Warning: catppuccin theme not available, using default theme")))
 
-    ;; Load initial font configuration (default to monolisa)
-    (my/load-font-config my/current-font-config)
-
-    ;; Apply fonts to current frame
-    (my/apply-fonts-to-frame)
+    ;; Defer font initialization to avoid dashboard redraw issues
+    (run-with-idle-timer 0.1 nil
+      (lambda ()
+        ;; Load initial font configuration (default to pragmatapro)
+        (my/load-font-config 'pragmatapro)
+        ;; Apply fonts to current frame
+        (my/apply-fonts-to-frame)))
 
     ;; Add hook for new frames (important for emacsclient)
     (add-hook 'after-make-frame-functions #'my/apply-fonts-to-frame)

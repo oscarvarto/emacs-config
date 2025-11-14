@@ -195,4 +195,13 @@
   :config
   (envrc-global-mode))
 
+(use-package markdown-xwidget
+  :after markdown-mode
+  :ensure (markdown-xwidget
+           :host github
+           :repo "cfclrk/markdown-xwidget"
+           :files (:defaults "resources"))
+  :bind (:map markdown-mode-command-map
+              ("x" . markdown-xwidget-preview-mode)))
+
 (provide 'my-defaults)
