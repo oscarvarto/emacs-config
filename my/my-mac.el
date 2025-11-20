@@ -9,4 +9,9 @@
     (when (memq window-system '(mac ns x))
       (exec-path-from-shell-initialize)))
 
+(use-package kkp
+    :ensure t
+    :config
+    (global-kkp-mode +1))
+
 (provide 'my-mac)
