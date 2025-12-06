@@ -5,6 +5,9 @@
 
 (require 'cl-lib)
 
+;; CRITICAL: lsp-use-plists MUST be set BEFORE lsp-mode loads
+(setq lsp-use-plists t)
+
 ;; Disable snippets if yasnippet is not available
 (setq lsp-enable-snippet nil)
 

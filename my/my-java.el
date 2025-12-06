@@ -7,9 +7,13 @@
 ;; Configure lsp-java (already installed via elpaca in my-elpaca.el)
 (use-package lsp-java
   :ensure nil
+  :init
+  ;; Set download URL before lsp-java loads (used by lsp-install-server)
+  (setq lsp-java-jdt-download-url
+        "https://www.eclipse.org/downloads/download.php?file=/jdtls/snapshots/jdt-language-server-latest.tar.gz")
   :after lsp-mode)
 
-;; Project detection for Java projects
+;; Project detection for Java projects (project.el)
 (with-eval-after-load 'project
   (defun my/project-try-maven (dir)
     "Find Maven project root by looking for pom.xml."
@@ -26,6 +30,144 @@
   (add-hook 'project-find-functions #'my/project-try-maven 10)
   (add-hook 'project-find-functions #'my/project-try-gradle 10))
 
+;; Projectile integration for Java projects
+(with-eval-after-load 'projectile
+  (defun my/projectile-maven-root (dir)
+    "Return Maven project root for DIR or nil.
+Only operates in Maven projects (checks for pom.xml)."
+    (when-let ((root (locate-dominating-file dir "pom.xml")))
+      (file-truename root)))
+
+  (defun my/projectile-gradle-root (dir)
+    "Return Gradle project root for DIR or nil.
+Only operates in Gradle projects (checks for build.gradle*)."
+    (when-let ((root (or (locate-dominating-file dir "build.gradle")
+                         (locate-dominating-file dir "build.gradle.kts"))))
+      (file-truename root)))
+
+  ;; Add Maven project root detection (prepend to list like Rust does)
+  (setq projectile-project-root-functions
+        (cons #'my/projectile-maven-root
+              (cl-remove #'my/projectile-maven-root
+                         projectile-project-root-functions)))
+
+  ;; Add Gradle project root detection (prepend to list)
+  (setq projectile-project-root-functions
+        (cons #'my/projectile-gradle-root
+              (cl-remove #'my/projectile-gradle-root
+                         projectile-project-root-functions))))
+
+;; Debug helper for Java JDK configuration
+(defun my/java-debug-jdk-config ()
+  "Display JDK configuration information."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*Java JDK Config*")
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert "=== Java JDK Configuration Debug ===\n\n")
+      (insert (format "Default JDK Path: %s\n" my/jdk-default-path))
+      (insert (format "JAVA_HOME: %s\n\n" (getenv "JAVA_HOME")))
+      (insert "Configured Runtimes:\n")
+      (dolist (jdk my/jdk-paths)
+        (insert (format "  - %s (v%s) %s\n    Path: %s\n"
+                        (plist-get jdk :name)
+                        (plist-get jdk :version)
+                        (if (plist-get jdk :default) "[DEFAULT]" "")
+                        (plist-get jdk :path))))
+      (insert "\nlsp-java-configuration-runtimes:\n")
+      (when (boundp 'lsp-java-configuration-runtimes)
+        (seq-do (lambda (rt)
+                  (insert (format "  - %s: %s %s\n"
+                                  (plist-get rt :name)
+                                  (plist-get rt :path)
+                                  (if (plist-get rt :default) "[DEFAULT]" ""))))
+                lsp-java-configuration-runtimes)))
+    (special-mode)
+    (display-buffer (current-buffer))))
+
+;; Clear all project detection caches
+(defun my/clear-all-project-caches ()
+  "Clear all project-related caches (Projectile, Rust workspace, etc.)."
+  (interactive)
+  (let ((cleared '()))
+    ;; Clear Projectile cache
+    (when (and (boundp 'projectile-project-root-cache)
+               (hash-table-p projectile-project-root-cache))
+      (clrhash projectile-project-root-cache)
+      (push "Projectile" cleared))
+    
+    ;; Clear Rust workspace cache
+    (when (and (boundp 'my/rust--workspace-cache)
+               (hash-table-p my/rust--workspace-cache))
+      (clrhash my/rust--workspace-cache)
+      (push "Rust workspace" cleared))
+    
+    (if cleared
+        (message "Cleared caches: %s" (string-join cleared ", "))
+      (message "No caches to clear"))))
+
+;; Test all projectile root functions
+(defun my/test-all-projectile-functions ()
+  "Test all projectile root functions for current directory."
+  (interactive)
+  (require 'projectile)
+  (let* ((dir (or (and buffer-file-name
+                       (file-name-directory buffer-file-name))
+                  default-directory))
+         (truename-dir (file-truename dir)))
+    (with-current-buffer (get-buffer-create "*Projectile Function Test*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (format "Testing from: %s\n" dir))
+        (insert (format "Truename: %s\n\n" truename-dir))
+        (dolist (func projectile-project-root-functions)
+          (let* ((result (condition-case err
+                             (funcall func truename-dir)
+                           (error (format "ERROR: %S" err)))))
+            (insert (format "%-40s => %s\n" func (or result "nil"))))))
+      (special-mode)
+      (display-buffer (current-buffer)))))
+
+;; Debug helper for Java projects
+(defun my/java-debug-project-root ()
+  "Display comprehensive project root detection information for current buffer."
+  (interactive)
+  (require 'projectile)
+  (let* ((current-dir (or (and buffer-file-name
+                               (file-name-directory buffer-file-name))
+                          default-directory))
+         (maven-root (locate-dominating-file current-dir "pom.xml"))
+         (gradle-root (or (locate-dominating-file current-dir "build.gradle")
+                          (locate-dominating-file current-dir "build.gradle.kts")))
+         (git-root (locate-dominating-file current-dir ".git"))
+         (projectile-root (condition-case err
+                              (projectile-project-root)
+                            (error (format "Error: %S" err))))
+         (project-root (when (fboundp 'project-current)
+                         (when-let ((proj (project-current)))
+                           (if (fboundp 'project-root)
+                               (project-root proj)
+                             (car (project-roots proj)))))))
+    (with-current-buffer (get-buffer-create "*Java Project Debug*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert "=== Java Project Root Detection Debug ===\n\n")
+        (insert (format "Current directory: %s\n\n" current-dir))
+        (insert (format "Buffer-local projectile-project-root variable: %s\n\n" 
+                        (if (local-variable-p 'projectile-project-root)
+                            projectile-project-root
+                          "NOT SET")))
+        (insert (format "Maven root (pom.xml): %s\n" (or maven-root "NOT FOUND")))
+        (insert (format "Gradle root (build.gradle*): %s\n" (or gradle-root "NOT FOUND")))
+        (insert (format "Git root (.git): %s\n\n" (or git-root "NOT FOUND")))
+        (insert (format "Projectile root: %s\n" projectile-root))
+        (insert (format "Project.el root: %s\n\n" (or project-root "NOT FOUND")))
+        (insert (format "projectile-project-root-functions:\n"))
+        (dolist (func projectile-project-root-functions)
+          (insert (format "  - %S\n" func))))
+      (special-mode)
+      (display-buffer (current-buffer)))))
+
 ;; JDK configuration
 (defvar my/jdk-paths
   `((:name "JavaSE-17"
@@ -36,7 +178,7 @@
      :path ,(string-trim (shell-command-to-string "mise where java@corretto-21"))
      :version "21"
      :default nil)
-    (:name "JavaSE-25"
+    (:name "JavaSE-22"
      :path ,(string-trim (shell-command-to-string "mise where java@corretto-25"))
      :version "25"
      :default t))

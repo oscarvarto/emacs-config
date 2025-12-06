@@ -23,7 +23,7 @@
   (projectile-mode +1)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   ;; Projectile settings
-  (setq projectile-require-project-root nil)
+  (setq projectile-require-project-root t)  ; Require actual project root markers
   (setq projectile-globally-ignored-directories
         (list (getenv "HOME")))
   ; Set garbage collection threshold higher (e.g., 100MB) for potentially smoother performance

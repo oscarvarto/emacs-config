@@ -137,6 +137,13 @@ and returning non-nil for the preferred match."
       (message "Rust workspace root: %s" root)
     (message "No Cargo workspace root detected.")))
 
+(defun my/rust-clear-workspace-cache ()
+  "Clear the Rust workspace cache."
+  (interactive)
+  (when (hash-table-p my/rust--workspace-cache)
+    (clrhash my/rust--workspace-cache)
+    (message "Rust workspace cache cleared.")))
+
 (defun my/projectile-show-root ()
   "Display the Projectile project root for the current buffer."
   (interactive)
@@ -146,11 +153,13 @@ and returning non-nil for the preferred match."
         (message "Projectile project root: %s" root)
       (message "Projectile could not determine a project root here."))))
 
-;; Projectile integration
+;; Projectile integration for Rust (only runs for Rust files)
 (with-eval-after-load 'projectile
   (defun my/projectile-rust-workspace-root (dir)
-    "Return Cargo workspace root for DIR or nil."
-    (when (fboundp 'rustic-buffer-workspace)
+    "Return Cargo workspace root for DIR or nil.
+Only operates in Rust projects (checks for Cargo.toml)."
+    (when (and (fboundp 'rustic-buffer-workspace)
+               (locate-dominating-file dir "Cargo.toml"))
       (my/rust-find-workspace-root dir)))
 
   (setq projectile-project-root-functions
