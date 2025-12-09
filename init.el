@@ -21,5 +21,6 @@
 (load "my-rust")
 (load "my-nix")
 (load "my-nushell")
+(load "my-xonsh")
 (load "my-dap")  ; DAP debugging for Java/Clojure (Rust uses dape)
 (load "my-org")

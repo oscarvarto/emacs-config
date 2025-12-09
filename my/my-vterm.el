@@ -1,8 +1,8 @@
 ;; -*- lexical-binding: t; no-byte-compile: t; -*-
 
-;; vterm is provided by nix (compiled)
+;; vterm - install via Elpaca and compile native module
 (use-package vterm
-  :ensure nil
+  :ensure t
   :config
   (use-package eterm-256color
     :ensure t
