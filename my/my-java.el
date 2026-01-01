@@ -2,6 +2,7 @@
 
 ;; Java development with lsp-mode and lsp-java
 
+(require 'subr-x)
 (require 'use-package)
 
 ;; Configure lsp-java (already installed via elpaca in my-elpaca.el)
@@ -17,13 +18,13 @@
 (with-eval-after-load 'project
   (defun my/project-try-maven (dir)
     "Find Maven project root by looking for pom.xml."
-    (when-let ((root (locate-dominating-file dir "pom.xml")))
+    (when-let* ((root (locate-dominating-file dir "pom.xml")))
       (cons 'transient root)))
 
   (defun my/project-try-gradle (dir)
     "Find Gradle project root by looking for build.gradle or build.gradle.kts."
-    (when-let ((root (or (locate-dominating-file dir "build.gradle")
-                         (locate-dominating-file dir "build.gradle.kts"))))
+    (when-let* ((root (or (locate-dominating-file dir "build.gradle")
+                          (locate-dominating-file dir "build.gradle.kts"))))
       (cons 'transient root)))
 
   ;; Add Maven and Gradle project detection before VC
@@ -35,14 +36,14 @@
   (defun my/projectile-maven-root (dir)
     "Return Maven project root for DIR or nil.
 Only operates in Maven projects (checks for pom.xml)."
-    (when-let ((root (locate-dominating-file dir "pom.xml")))
+    (when-let* ((root (locate-dominating-file dir "pom.xml")))
       (file-truename root)))
 
   (defun my/projectile-gradle-root (dir)
     "Return Gradle project root for DIR or nil.
 Only operates in Gradle projects (checks for build.gradle*)."
-    (when-let ((root (or (locate-dominating-file dir "build.gradle")
-                         (locate-dominating-file dir "build.gradle.kts"))))
+    (when-let* ((root (or (locate-dominating-file dir "build.gradle")
+                          (locate-dominating-file dir "build.gradle.kts"))))
       (file-truename root)))
 
   ;; Add Maven project root detection (prepend to list like Rust does)
@@ -144,7 +145,7 @@ Only operates in Gradle projects (checks for build.gradle*)."
                               (projectile-project-root)
                             (error (format "Error: %S" err))))
          (project-root (when (fboundp 'project-current)
-                         (when-let ((proj (project-current)))
+                         (when-let* ((proj (project-current)))
                            (if (fboundp 'project-root)
                                (project-root proj)
                              (car (project-roots proj)))))))

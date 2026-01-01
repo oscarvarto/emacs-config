@@ -79,6 +79,9 @@
 ;; Debugging support
 (elpaca dap-mode)  ; For Java/Clojure debugging via lsp-mode
 
+;; Tree-sitter major mode for Clojure (Emacs 29/30+ treesit)
+(elpaca (clojure-ts-mode :host github :repo "clojure-emacs/clojure-ts-mode"))
+
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.
 ;;Useful for configuring built-in emacs features.

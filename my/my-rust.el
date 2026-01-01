@@ -50,7 +50,7 @@
 
 (defun my/direnv-project-root ()
   "Return the nearest directory containing a .envrc file, or nil."
-  (when-let ((root (locate-dominating-file default-directory ".envrc")))
+  (when-let* ((root (locate-dominating-file default-directory ".envrc")))
     (expand-file-name root)))
 
 (defun my/find-executable-in-env (program &optional prefer)
@@ -124,7 +124,7 @@ and returning non-nil for the preferred match."
       (or (gethash canon my/rust--workspace-cache)
           (when (fboundp 'rustic-buffer-workspace)
             (let ((default-directory canon))
-              (when-let ((raw (ignore-errors (rustic-buffer-workspace))))
+              (when-let* ((raw (ignore-errors (rustic-buffer-workspace))))
                 (let* ((root (file-name-as-directory (file-truename raw))))
                   (unless (my/rust--toolchain-path-p root)
                     (puthash canon root my/rust--workspace-cache))
@@ -133,7 +133,7 @@ and returning non-nil for the preferred match."
 (defun my/rust-show-workspace-root ()
   "Display the detected Cargo workspace root for the current buffer."
   (interactive)
-  (if-let ((root (my/rust-find-workspace-root)))
+  (if-let* ((root (my/rust-find-workspace-root)))
       (message "Rust workspace root: %s" root)
     (message "No Cargo workspace root detected.")))
 
@@ -149,7 +149,7 @@ and returning non-nil for the preferred match."
   (interactive)
   (if (not (require 'projectile nil 'noerror))
       (message "Projectile is not available.")
-    (if-let ((root (ignore-errors (projectile-project-root))))
+    (if-let* ((root (ignore-errors (projectile-project-root))))
         (message "Projectile project root: %s" root)
       (message "Projectile could not determine a project root here."))))
 

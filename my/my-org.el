@@ -1,5 +1,6 @@
 ;; -*- lexical-binding: t; no-byte-compile: t; -*-
 
+(require 'subr-x)
 (require 'org)
 (load "my-org-tools")
 
@@ -12,7 +13,7 @@
   :demand t
   :config
   ;; Set ob-mermaid-cli-path if mmdc executable is found
-  (when-let ((mmdc-path (executable-find "mmdc")))
+  (when-let* ((mmdc-path (executable-find "mmdc")))
     (setq ob-mermaid-cli-path mmdc-path)))
 
 (setq org-startup-indented t)

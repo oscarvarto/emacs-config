@@ -4,6 +4,7 @@
 ;; Note: Rust continues to use eglot (configured in my-rust.el)
 
 (require 'cl-lib)
+(require 'subr-x)
 
 ;; CRITICAL: lsp-use-plists MUST be set BEFORE lsp-mode loads
 (setq lsp-use-plists t)
@@ -42,7 +43,7 @@
              (not (functionp 'json-rpc-connection))  ;; native json-rpc
              (executable-find "emacs-lsp-booster"))
         (progn
-          (when-let ((command-from-exec-path (executable-find (car orig-result))))
+          (when-let* ((command-from-exec-path (executable-find (car orig-result))))
             (setcar orig-result command-from-exec-path))
           (message "Using emacs-lsp-booster for %s!" orig-result)
           (cons "emacs-lsp-booster" orig-result))

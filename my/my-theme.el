@@ -5,7 +5,7 @@
   :demand t
   :config
   (load-theme 'catppuccin :no-confirm)
-  (setq catppuccin-flavor 'mocha)
+  (setq catppuccin-flavor 'latte)
   (catppuccin-reload))
 
 (provide 'my-theme)

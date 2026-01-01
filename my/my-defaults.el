@@ -55,8 +55,7 @@
         (rust-mode . rust-ts-mode)
         (css-mode . css-ts-mode)
         (bash-mode . bash-ts-mode)
-        (sh-mode . bash-ts-mode)
-        (clojure-mode . clojure-ts-mode)))
+        (sh-mode . bash-ts-mode)))
 
 ;; Auto-mode associations for json-ts-mode
 (setq auto-mode-alist
@@ -127,8 +126,38 @@
 (use-package eldoc-box
   :ensure t
   :demand t
-  :hook ((eglot-managed-mode . eldoc-box-hover-mode)
-         (lsp-mode . eldoc-box-hover-mode)))
+  :preface
+  (defun my/eldoc-ui--buffer-wants-popup-p ()
+    "Return non-nil when the current buffer should use eldoc popups."
+    (or (bound-and-true-p lsp-mode)
+        (bound-and-true-p eglot-managed-mode)
+        (bound-and-true-p cider-mode)))
+
+  (defun my/eldoc-ui--apply (&optional frame)
+    "Enable a GUI popup or a terminal-friendly eldoc fallback."
+    (let ((gui (display-graphic-p (or frame (selected-frame)))))
+      (if (and gui (my/eldoc-ui--buffer-wants-popup-p))
+          (eldoc-box-mouse-mode 1)
+        (when (bound-and-true-p eldoc-box-mouse-mode)
+          (eldoc-box-mouse-mode -1))
+        (unless gui
+          (when (boundp 'eldoc-echo-area-use-multiline-p)
+            (setq-local eldoc-echo-area-use-multiline-p t))))))
+
+  (defun my/eldoc-ui--sync-window (window &rest _)
+    "Sync eldoc UI for WINDOW's buffer based on frame type."
+    (when (window-live-p window)
+      (with-current-buffer (window-buffer window)
+        (my/eldoc-ui--apply (window-frame window)))))
+  :hook ((eglot-managed-mode . my/eldoc-ui--apply)
+         (cider-mode . my/eldoc-ui--apply)
+         (lsp-mode . my/eldoc-ui--apply))
+  :init
+  (when (boundp 'window-buffer-change-functions)
+    (add-hook 'window-buffer-change-functions #'my/eldoc-ui--sync-window))
+  :config
+  (ignore-errors
+    (set-face-attribute 'eldoc-box-body nil :family "PragmataPro Mono Liga")))
 
 (use-package dape
   :ensure t
