@@ -257,7 +257,7 @@
                             ((eq my/current-font-config 'pragmatapro) 'monolisa)
                             ((eq my/current-font-config 'monolisa) 'jetbrains)
                             ((eq my/current-font-config 'jetbrains) 'pragmatapro)
-                            (t 'pragmatapro)))
+                            (t 'monolisa)))
           (in-dashboard (string= (buffer-name) dashboard-buffer-name)))
       ;; Load the new font configuration
       (my/load-font-config new-font-config)
@@ -291,7 +291,7 @@
     (when (fboundp 'cursor-face-highlight-mode)
       (cursor-face-highlight-mode 1))
 
-    ;; Idle highlight mode
+    ;; Idle highlight mode (disabled due to repo issues)
     (use-package idle-highlight-mode
       :ensure t
       :demand t
@@ -397,8 +397,8 @@
     ;; Defer font initialization to avoid dashboard redraw issues
     (run-with-idle-timer 0.1 nil
       (lambda ()
-        ;; Load initial font configuration (default to pragmatapro)
-        (my/load-font-config 'pragmatapro)
+        ;; Load initial font configuration (default to monolisa)
+        (my/load-font-config 'monolisa)
         ;; Apply fonts to current frame
         (my/apply-fonts-to-frame)))
 

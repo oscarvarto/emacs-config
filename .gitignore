@@ -19,6 +19,7 @@ cache/
 .lsp-session-v1
 workspace/
 *backup*
+recentf.eld
 
 # Credentials and other sensitive data
 authinfo
