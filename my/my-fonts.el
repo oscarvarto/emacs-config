@@ -187,7 +187,7 @@
 
   ;; Initialize catppuccin flavor support
   ;; SINGLE SOURCE OF TRUTH: Default catppuccin flavor configuration
-  (defconst my/default-catppuccin-flavor 'latte
+  (defconst my/default-catppuccin-flavor 'mocha
     "The default catppuccin flavor to use on startup and as fallback.")
 
   (defvar my/catppuccin-current-flavor my/default-catppuccin-flavor

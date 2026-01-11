@@ -179,7 +179,7 @@ Only operates in Gradle projects (checks for build.gradle*)."
      :path ,(string-trim (shell-command-to-string "mise where java@corretto-21"))
      :version "21"
      :default nil)
-    (:name "JavaSE-22"
+    (:name "JavaSE-25"
      :path ,(string-trim (shell-command-to-string "mise where java@corretto-25"))
      :version "25"
      :default t))
