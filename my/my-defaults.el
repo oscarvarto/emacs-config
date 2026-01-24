@@ -55,7 +55,10 @@
         (rust-mode . rust-ts-mode)
         (css-mode . css-ts-mode)
         (bash-mode . bash-ts-mode)
-        (sh-mode . bash-ts-mode)))
+        (sh-mode . bash-ts-mode)
+        (kotlin-mode . kotlin-ts-mode)
+        (csharp-mode . csharp-ts-mode)
+        (nix-mode . nix-ts-mode)))
 
 ;; Auto-mode associations for json-ts-mode
 (setq auto-mode-alist
@@ -73,6 +76,25 @@
                 ("\\.prettierrc\\.json\\'" . json-ts-mode)
                 ("tsconfig\\.json\\'" . json-ts-mode)
                 ("jsconfig\\.json\\'" . json-ts-mode))
+              auto-mode-alist))
+
+;; Auto-mode associations for additional languages
+(setq auto-mode-alist
+      (append '(;; Kotlin
+                ("\\.kt\\'" . kotlin-ts-mode)
+                ("\\.kts\\'" . kotlin-ts-mode)
+                ;; C#
+                ("\\.cs\\'" . csharp-ts-mode)
+                ("\\.csx\\'" . csharp-ts-mode)
+                ;; Nix
+                ("\\.nix\\'" . nix-ts-mode)
+                ;; Fish
+                ("\\.fish\\'" . fish-mode)
+                ;; Zsh (uses bash-ts-mode)
+                ("\\.zsh\\'" . bash-ts-mode)
+                ("\\.zshrc\\'" . bash-ts-mode)
+                ("\\.zshenv\\'" . bash-ts-mode)
+                ("\\.zprofile\\'" . bash-ts-mode))
               auto-mode-alist))
 
 (setq-default buffer-file-coding-system 'utf-8-unix) ; Default file encoding
@@ -223,6 +245,44 @@
   :demand t
   :config
   (envrc-global-mode))
+
+(use-package markdown-mode
+  :after elpaca
+  :mode (("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :custom
+  (markdown-fontify-code-blocks-natively t)
+  :config
+  ;; Explicitly map code block languages to non-tree-sitter modes
+  ;; Tree-sitter modes don't work with markdown's embedded fontification
+  (setq markdown-code-lang-modes
+        '(("elisp" . emacs-lisp-mode)
+          ("emacs-lisp" . emacs-lisp-mode)
+          ("java" . java-mode)
+          ("kotlin" . kotlin-mode)
+          ("python" . python-mode)
+          ("py" . python-mode)
+          ("typescript" . typescript-mode)
+          ("ts" . typescript-mode)
+          ("javascript" . javascript-mode)
+          ("js" . javascript-mode)
+          ("csharp" . csharp-mode)
+          ("cs" . csharp-mode)
+          ("clojure" . clojure-mode)
+          ("clj" . clojure-mode)
+          ("nix" . nix-mode)
+          ("bash" . sh-mode)
+          ("sh" . sh-mode)
+          ("zsh" . sh-mode)
+          ("fish" . fish-mode)
+          ("nushell" . nushell-mode)
+          ("nu" . nushell-mode)
+          ("json" . js-mode)
+          ("rust" . rust-mode)
+          ("rs" . rust-mode)
+          ("c" . c-mode)
+          ("cpp" . c++-mode)
+          ("c++" . c++-mode))))
 
 (use-package markdown-xwidget
   :after markdown-mode

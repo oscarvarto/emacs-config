@@ -76,11 +76,29 @@
 (elpaca nix-mode)
 (elpaca nushell-mode)
 
+;; C# support
+(elpaca csharp-mode)
+
+;; Fish shell support
+(elpaca fish-mode)
+
+;; Traditional modes needed for markdown code block fontification
+;; (tree-sitter modes don't work with markdown's embedded fontification)
+(elpaca kotlin-mode)
+(elpaca typescript-mode)
+(elpaca rust-mode)
+
 ;; Debugging support
 (elpaca dap-mode)  ; For Java/Clojure debugging via lsp-mode
 
 ;; Tree-sitter major mode for Clojure (Emacs 29/30+ treesit)
 (elpaca (clojure-ts-mode :host github :repo "clojure-emacs/clojure-ts-mode"))
+
+;; Tree-sitter mode for Kotlin
+(elpaca (kotlin-ts-mode :host github :repo "emacsmirror/kotlin-ts-mode"))
+
+;; Tree-sitter mode for Nix
+(elpaca (nix-ts-mode :host github :repo "nix-community/nix-ts-mode"))
 
 ;;Turns off elpaca-use-package-mode current declaration
 ;;Note this will cause evaluate the declaration immediately. It is not deferred.

@@ -81,6 +81,7 @@
     ;; Quit/Session
     "q" '(:ignore t :which-key "quit")
     "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
+    "qQ" '(kill-emacs :which-key "kill emacs (no save)")
     "qr" '(restart-emacs :which-key "restart emacs")))
 
 (provide 'my-keys)
